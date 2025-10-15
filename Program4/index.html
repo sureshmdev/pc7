@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🔐 Hill Cipher Technique - Celebration Pop</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Roboto", sans-serif;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        color: white;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+      }
+      h1 {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 2rem;
+        color: #00ffc3;
+        text-shadow: 1px 1px 5px #000;
+      }
+
+      .container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 1000px;
+        width: 95%;
+        margin-top: 20px;
+      }
+      .card {
+        background: rgba(0, 0, 0, 0.6);
+        padding: 25px;
+        border-radius: 15px;
+        margin: 10px;
+        flex: 1 1 300px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+        transition: transform 0.3s;
+      }
+      .card:hover {
+        transform: scale(1.02);
+      }
+      .card h3 {
+        margin-top: 0;
+        text-align: center;
+      }
+
+      input,
+      textarea {
+        padding: 10px;
+        border-radius: 8px;
+        border: none;
+        margin: 5px;
+        font-size: 16px;
+      }
+      textarea {
+        width: 100%;
+        resize: none;
+      }
+
+      button {
+        padding: 12px 20px;
+        margin: 5px;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        color: white;
+        background: linear-gradient(90deg, #06d6a0, #1e90ff);
+        transition: 0.3s;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+      button:hover {
+        background: linear-gradient(90deg, #04b383, #0c7bdb);
+        transform: scale(1.05);
+      }
+
+      .buttonGroup {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 15px;
+      }
+      .buttonGroup button {
+        flex: 1;
+        max-width: 150px;
+      }
+
+      .matrix {
+        display: grid;
+        gap: 5px;
+        justify-content: center;
+        margin-top: 10px;
+      }
+      .matrix input {
+        width: 60px;
+        text-align: center;
+        border-radius: 8px;
+        border: 1px solid #00ffc3;
+        background: rgba(0, 255, 195, 0.1);
+        color: #00ffc3;
+        font-weight: bold;
+        font-size: 18px;
+        transition: 0.3s;
+      }
+      .matrix input:focus {
+        background: rgba(0, 255, 195, 0.3);
+        outline: none;
+      }
+
+      #stepsContent {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 5px;
+      }
+      .step {
+        margin: 10px auto;
+        padding: 10px;
+        border-radius: 12px;
+        font-size: 16px;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.5s ease;
+        background: #00ffc322;
+        max-width: 450px;
+        text-align: center;
+      }
+      .step.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .outputBox {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 15px;
+        border-radius: 12px;
+        margin-top: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        min-height: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        transition: background 0.4s;
+      }
+      #outputText {
+        font-size: 26px;
+        font-weight: bold;
+        color: #00ffc3;
+        text-shadow: 0 0 8px #00ffc3, 0 0 15px #00ffc3;
+        text-align: center;
+        word-wrap: break-word;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+      }
+      #outputText.animate {
+        animation: pulseOutput 0.8s ease 2;
+      }
+
+      @keyframes pulseOutput {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      @media (max-width: 600px) {
+        .matrix input {
+          width: 45px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔐 Hill Cipher Technique</h1>
+
+    <div class="container">
+      <!-- Input Card -->
+      <div class="card">
+        <h3>Enter Your Message</h3>
+        <textarea id="message" rows="2" placeholder="Letters only"></textarea>
+
+        <h3>Select Matrix Size</h3>
+        <label><input type="radio" name="size" value="2" checked /> 2×2</label>
+        <label><input type="radio" name="size" value="3" /> 3×3</label>
+
+        <h3>Key Matrix (0–25)</h3>
+        <div id="matrix" class="matrix"></div>
+
+        <div class="buttonGroup">
+          <button onclick="animateHill(true)">Encrypt 🔒</button>
+          <button onclick="animateHill(false)">Decrypt 🔓</button>
+        </div>
+      </div>
+
+      <!-- Steps Card -->
+      <div class="card">
+        <h3>📖 Step-by-Step</h3>
+        <div id="stepsContent">Click Encrypt/Decrypt to see steps here.</div>
+      </div>
+
+      <!-- Output Card -->
+      <div class="card">
+        <h3>🏆 Final Output</h3>
+        <div class="outputBox">
+          <div id="outputText">---</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const matrixDiv = document.getElementById("matrix");
+      let matrixSize = 2;
+
+      // Render matrix inputs
+      function renderMatrix(size) {
+        matrixDiv.innerHTML = "";
+        matrixDiv.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+        for (let i = 0; i < size * size; i++) {
+          const inp = document.createElement("input");
+          inp.type = "number";
+          inp.min = 0;
+          inp.max = 25;
+          inp.value = 1;
+          matrixDiv.appendChild(inp);
+        }
+      }
+      renderMatrix(2);
+
+      // Change matrix size
+      document.querySelectorAll("input[name=size]").forEach((r) =>
+        r.addEventListener("change", (e) => {
+          matrixSize = parseInt(e.target.value);
+          renderMatrix(matrixSize);
+        })
+      );
+
+      function getMatrix() {
+        const vals = Array.from(matrixDiv.querySelectorAll("input")).map(
+          (i) => parseInt(i.value) || 0
+        );
+        let mat = [];
+        for (let i = 0; i < vals.length; i += matrixSize)
+          mat.push(vals.slice(i, i + matrixSize));
+        return mat;
+      }
+
+      // Math helpers
+      function modInverse(a, m) {
+        a = ((a % m) + m) % m;
+        for (let x = 1; x < m; x++) if ((a * x) % m === 1) return x;
+        return null;
+      }
+      function matrixDeterminant(m) {
+        if (m.length === 2) return m[0][0] * m[1][1] - m[0][1] * m[1][0];
+        if (m.length === 3)
+          return (
+            m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) -
+            m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) +
+            m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0])
+          );
+      }
+      function matrixAdjugate(m) {
+        if (m.length === 2)
+          return [
+            [m[1][1], -m[0][1]],
+            [-m[1][0], m[0][0]],
+          ];
+        if (m.length === 3) {
+          let adj = [];
+          for (let i = 0; i < 3; i++) {
+            adj[i] = [];
+            for (let j = 0; j < 3; j++) {
+              const minor = m
+                .filter((_, r) => r !== i)
+                .map((row) => row.filter((_, c) => c !== j));
+              const det = matrixDeterminant(minor);
+              adj[i][j] = (i + j) % 2 === 0 ? det : -det;
+            }
+          }
+          return adj[0].map((_, i) => adj.map((row) => row[i]));
+        }
+      }
+      function matrixInverse(m, mod) {
+        let det = ((matrixDeterminant(m) % mod) + mod) % mod;
+        const invDet = modInverse(det, mod);
+        if (!invDet) return null;
+        const adj = matrixAdjugate(m);
+        return adj.map((r) => r.map((v) => (((v * invDet) % mod) + mod) % mod));
+      }
+
+      // Process message
+      function processMessage(msg, matrix, encrypt = true) {
+        msg = msg.toUpperCase().replace(/[^A-Z]/g, "");
+        const mod = 26;
+        const chunk = matrix.length;
+        while (msg.length % chunk !== 0) msg += "X";
+        let workMatrix = encrypt ? matrix : matrixInverse(matrix, mod);
+        if (!workMatrix) return { error: "Matrix not invertible modulo 26" };
+        let steps = [],
+          output = "";
+        for (let i = 0; i < msg.length; i += chunk) {
+          const block = msg.slice(i, i + chunk);
+          const nums = block.split("").map((c) => c.charCodeAt(0) - 65);
+          steps.push({ text: `🔹 Block: ${block} → [${nums}]` });
+          let res = [];
+          for (let r = 0; r < chunk; r++) {
+            let s = 0;
+            for (let c = 0; c < chunk; c++) {
+              s += workMatrix[r][c] * nums[c];
+            }
+            res[r] = ((s % mod) + mod) % mod;
+          }
+          const outBlock = res.map((n) => String.fromCharCode(n + 65)).join("");
+          steps.push({ text: `➡ Multiply → [${res}] → ${outBlock}` });
+          output += outBlock;
+        }
+        return { steps, output };
+      }
+
+      // Animate steps
+      function animateHill(encrypt = true) {
+        const msg = document.getElementById("message").value;
+        const mat = getMatrix();
+        const stepsDiv = document.getElementById("stepsContent");
+        const outText = document.getElementById("outputText");
+        stepsDiv.innerHTML = "";
+        outText.innerText = "---";
+        outText.classList.remove("animate");
+
+        const { steps, output, error } = processMessage(msg, mat, encrypt);
+        if (error) {
+          stepsDiv.innerHTML = `<div class='step show' style='color:red'>${error}</div>`;
+          return;
+        }
+
+        let stepIndex = 0;
+        function showNextStep() {
+          if (stepIndex >= steps.length) {
+            outText.innerText = output;
+            outText.classList.add("animate");
+            popConfetti(outText);
+            return;
+          }
+          const step = steps[stepIndex];
+          const div = document.createElement("div");
+          div.className = "step";
+          div.innerHTML = step.text;
+          stepsDiv.appendChild(div);
+
+          setTimeout(() => div.classList.add("show"), 50);
+          div.scrollIntoView({ behavior: "smooth", block: "center" });
+          stepIndex++;
+          setTimeout(showNextStep, 1000);
+        }
+        showNextStep();
+      }
+
+      // Pop confetti around output box (background themed)
+      function popConfetti(target) {
+        const rect = target.getBoundingClientRect();
+        const colors = ["#00ffc3", "#0cf0f0", "#00d6ff", "#00aabb", "#66ffff"];
+        for (let i = 0; i < 80; i++) {
+          const c = document.createElement("div");
+          c.style.position = "fixed";
+          c.style.width = "6px";
+          c.style.height = "6px";
+          c.style.background =
+            colors[Math.floor(Math.random() * colors.length)];
+          c.style.borderRadius = "50%";
+          c.style.pointerEvents = "none";
+          c.style.left =
+            rect.left + rect.width / 2 + (Math.random() * 80 - 40) + "px";
+          c.style.top =
+            rect.top + rect.height / 2 + (Math.random() * 80 - 40) + "px";
+          c.style.zIndex = 999;
+          c.style.opacity = 1;
+          c.style.transform = `translate(0,0)`;
+          c.style.transition = "all 1s ease-out";
+          document.body.appendChild(c);
+
+          setTimeout(() => {
+            c.style.transform = `translate(${Math.random() * 150 - 75}px, ${
+              Math.random() * 150 - 75
+            }px) rotate(${Math.random() * 360}deg)`;
+            c.style.opacity = 0;
+          }, 50);
+
+          setTimeout(() => c.remove(), 1200);
+        }
+      }
+    </script>
+  </body>
+</html>
